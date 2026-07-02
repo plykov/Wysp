@@ -15,8 +15,11 @@ from typing import Optional
 
 try:
     import pyaudiowpatch as pyaudio
-except ImportError:  # pragma: no cover - only available on Windows
+
+    _IMPORT_ERROR: Exception | None = None
+except ImportError as exc:  # pragma: no cover - only available on Windows
     pyaudio = None
+    _IMPORT_ERROR = exc
 
 CHUNK_FRAMES = 1024
 
@@ -81,8 +84,8 @@ class Recorder:
     def __init__(self, mic_device_index: int, loopback_device_index: int):
         if pyaudio is None:
             raise RuntimeError(
-                "pyaudiowpatch is not installed, or this isn't Windows. "
-                "Krysp Local's recorder only works on Windows with WASAPI."
+                f"pyaudiowpatch is not available ({_IMPORT_ERROR}). "
+                "Run 'pip install -r requirements.txt' in your Windows Python environment."
             )
         self._audio = pyaudio.PyAudio()
         self._mic_device_index = mic_device_index

@@ -103,10 +103,10 @@ class KryspLocalApp:
             self.mics = audio_devices.list_microphones()
             self.loopbacks = audio_devices.list_loopback_devices()
             self._devices_available = True
-        except RuntimeError:
+        except RuntimeError as exc:
             self.mics, self.loopbacks = [], []
             self._devices_available = False
-            self.status_var.set("Audio capture unavailable (Windows + WASAPI required)")
+            self.status_var.set(f"Audio capture unavailable: {exc}")
 
         self.mic_combo["values"] = [d.name for d in self.mics]
         self.loopback_combo["values"] = [d.name for d in self.loopbacks]

@@ -13,8 +13,11 @@ from dataclasses import dataclass
 
 try:
     import pyaudiowpatch as pyaudio
-except ImportError:  # pragma: no cover - only available on Windows
+
+    _IMPORT_ERROR: Exception | None = None
+except ImportError as exc:  # pragma: no cover - only available on Windows
     pyaudio = None
+    _IMPORT_ERROR = exc
 
 
 @dataclass
@@ -29,8 +32,9 @@ class AudioDevice:
 def _require_pyaudio() -> None:
     if pyaudio is None:
         raise RuntimeError(
-            "pyaudiowpatch is not installed, or this isn't Windows. "
-            "Krysp Local's audio capture only works on Windows with WASAPI."
+            "pyaudiowpatch is not available "
+            f"({_IMPORT_ERROR}). Run 'pip install -r requirements.txt' "
+            "in your Windows Python environment, then use Refresh devices."
         )
 
 

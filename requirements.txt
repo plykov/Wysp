@@ -1,0 +1,8 @@
+# Windows-only: WASAPI microphone + loopback (system/call audio) capture.
+PyAudioWPatch==0.2.12.7; sys_platform == "win32"
+
+# Local, offline speech-to-text.
+faster-whisper==1.0.3
+
+# Packaging (optional, only needed to build KryspLocal.exe).
+pyinstaller==6.10.0; sys_platform == "win32"

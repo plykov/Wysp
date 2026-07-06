@@ -1,13 +1,13 @@
 package com.wysp.krysp.android.capture
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioPlaybackCaptureConfiguration
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.media.projection.MediaProjection
-import android.os.Build
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
@@ -31,7 +31,10 @@ import kotlin.concurrent.thread
  * requested. That's kept deliberately rather than routed around via hidden APIs, both for API
  * stability across Android versions and because it doubles as a visible recording-consent signal.
  */
-class PrivilegedDualTrackSource(private val mediaProjection: MediaProjection) : CallAudioSource {
+class PrivilegedDualTrackSource(
+    private val context: Context,
+    private val mediaProjection: MediaProjection,
+) : CallAudioSource {
     override val producesSeparateTracks = true
 
     private val sampleRate = 16000
@@ -41,11 +44,17 @@ class PrivilegedDualTrackSource(private val mediaProjection: MediaProjection) : 
     private var callThread: Thread? = null
     private val running = AtomicBoolean(false)
 
-    @SuppressLint("MissingPermission") // CAPTURE_AUDIO_OUTPUT checked by caller via SourceAvailability
+    // Lint's MissingPermission check can't trace the permission check through
+    // requireRecordAudioPermission() into this method - it's genuinely checked, just not in a
+    // form lint's dataflow analysis recognizes. CAPTURE_AUDIO_OUTPUT for the playback-capture
+    // AudioRecord.Builder call below is likewise a real, deliberate precondition: see
+    // CaptureCapability.hasPrivilegedCaptureAccess, which RecordingForegroundService checks
+    // before ever constructing this class.
+    @SuppressLint("MissingPermission")
     override fun start(outputDir: File): CaptureOutput {
-        check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            "AudioPlaybackCaptureConfiguration requires API 29+."
-        }
+        // No SDK_INT gate needed here: minSdk is already 29 (see app/build.gradle.kts), which is
+        // exactly the floor AudioPlaybackCaptureConfiguration requires.
+        requireRecordAudioPermission(context)
 
         val minBufferSize = AudioRecord.getMinBufferSize(
             sampleRate,

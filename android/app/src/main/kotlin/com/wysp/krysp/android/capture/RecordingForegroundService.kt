@@ -62,7 +62,7 @@ class RecordingForegroundService : Service() {
 
         val chosenSource = buildSource(intent)
         val meta = store.createRecording(producesSeparateTracks = chosenSource.producesSeparateTracks)
-        val output = chosenSource.start(File(meta.youWavPath).parentFile!!)
+        chosenSource.start(File(meta.youWavPath).parentFile!!)
 
         source = chosenSource
         activeMeta = meta
@@ -73,22 +73,26 @@ class RecordingForegroundService : Service() {
 
     private fun buildSource(intent: Intent): CallAudioSource {
         val resultCode = intent.getIntExtra(EXTRA_PROJECTION_RESULT_CODE, -1)
-        val projectionData = intent.getParcelableExtra<Intent>(EXTRA_PROJECTION_DATA)
+        val projectionData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(EXTRA_PROJECTION_DATA, Intent::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(EXTRA_PROJECTION_DATA)
+        }
 
-        val canUsePrivileged = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-            CaptureCapability.hasPrivilegedCaptureAccess(this) &&
+        val canUsePrivileged = CaptureCapability.hasPrivilegedCaptureAccess(this) &&
             resultCode != -1 &&
             projectionData != null
 
-        if (!canUsePrivileged) return MicSpeakerphoneSource()
+        if (!canUsePrivileged) return MicSpeakerphoneSource(this)
 
         val projectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         val projection: MediaProjection = projectionManager.getMediaProjection(resultCode, projectionData!!)
         return try {
-            PrivilegedDualTrackSource(projection)
+            PrivilegedDualTrackSource(this, projection)
         } catch (e: Exception) {
             projection.stop()
-            MicSpeakerphoneSource()
+            MicSpeakerphoneSource(this)
         }
     }
 

@@ -124,16 +124,29 @@ device and permanently trips Knox — read the warnings in that doc before start
 or open in Android Studio and hit Run. Grant microphone + notification permissions on first
 launch.
 
-## Tests
+## Tests / build verification
 
 ```
-./gradlew :core:test
+./gradlew :core:test        # 21 unit tests: merge, diarization heuristic, action items, summary, minutes
+./gradlew :app:assembleDebug # compiles + links the full app module
+./gradlew :app:lintDebug     # 0 errors
 ```
-21 unit tests cover the OS-independent logic (merge, diarization heuristic, action items, summary,
-minutes formatting) — verified in a real Gradle run during development. The `app` module's capture
-sources, JNI bridge, and UI are Android/NDK-dependent and need a real device/NDK to build and test;
-they weren't compiled in the environment this was authored in (no Android SDK available there), so
-treat that code as carefully written but unverified until you build it on your own machine.
+
+All three were run for real during development (Android SDK platform 34 + build-tools 34.0.0,
+no emulator/device needed for this level of verification) — `:core:test`'s 21 tests pass,
+`:app:assembleDebug` produces a working `app-debug.apk` (confirmed via `aapt dump badging`:
+correct package, permissions, and `MainActivity` registered as launcher), and `:app:lintDebug`
+passes with zero errors (the `AudioRecord`/`AudioPlaybackCaptureConfiguration` permission calls
+are guarded by an explicit runtime check — see `capture/PermissionCheck.kt` — that lint's static
+analysis can't trace through a helper function, hence the two `@SuppressLint` annotations in
+`MicSpeakerphoneSource`/`PrivilegedDualTrackSource`).
+
+What compiling and linting *doesn't* prove: that `PrivilegedDualTrackSource` actually receives
+non-silent audio from `AudioPlaybackCaptureConfiguration` once privileged, that the JNI shim in
+`native/whisper_jni.cpp` links and runs correctly against a real whisper.cpp checkout, or that the
+UI behaves correctly — those need a real device (see `android/README.md`'s capture-path table and
+`native/README.md`'s status notes for what's genuinely unverified vs. what's now confirmed to
+build).
 
 ## Privacy model
 

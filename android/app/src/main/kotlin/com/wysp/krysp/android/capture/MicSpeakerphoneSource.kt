@@ -1,5 +1,7 @@
 package com.wysp.krysp.android.capture
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
@@ -14,7 +16,7 @@ import kotlin.concurrent.thread
  * all - it's just ambient audio capture. Produces a single mixed mono track; see
  * [com.wysp.krysp.core.naiveDiarize] for the best-effort turn-splitting used on this track.
  */
-class MicSpeakerphoneSource : CallAudioSource {
+class MicSpeakerphoneSource(private val context: Context) : CallAudioSource {
     override val producesSeparateTracks = false
 
     private val sampleRate = 16000
@@ -22,7 +24,13 @@ class MicSpeakerphoneSource : CallAudioSource {
     private var recordingThread: Thread? = null
     private val running = AtomicBoolean(false)
 
+    // Lint's MissingPermission check can't trace the permission check through
+    // requireRecordAudioPermission() into this method - it's genuinely checked, just not in a
+    // form lint's dataflow analysis recognizes.
+    @SuppressLint("MissingPermission")
     override fun start(outputDir: File): CaptureOutput {
+        requireRecordAudioPermission(context)
+
         val minBufferSize = AudioRecord.getMinBufferSize(
             sampleRate,
             AudioFormat.CHANNEL_IN_MONO,

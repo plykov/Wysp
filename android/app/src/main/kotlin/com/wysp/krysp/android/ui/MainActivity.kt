@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && CaptureCapability.hasPrivilegedCaptureAccess(this)) {
+        if (CaptureCapability.hasPrivilegedCaptureAccess(this)) {
             // Privileged capture is available - still route through the MediaProjection consent
             // flow (see PrivilegedDualTrackSource's docs for why), then the service picks it up.
             val projectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager

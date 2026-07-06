@@ -109,6 +109,13 @@ Only if you want real "You" vs "Call" track separation instead of the mic+speake
 See `magisk-module/README.md` for the full build → zip → flash → verify steps. Skip this entirely
 to just use the always-available mic+speakerphone path — the app works fine without it.
 
+**On a Galaxy S25 Ultra** (Snapdragon 8 Elite, Android 15/16 — this project's reference device):
+`magisk-module/ROOTING_S25_ULTRA.md` covers the device-specific rooting steps (unlocked/
+international units only — most US carrier variants disable OEM bootloader unlocking entirely,
+which makes this whole path a dead end on those units). It's a GKI device, so Magisk patches
+`init_boot.img`, and flashing goes through Odin rather than fastboot. Bootloader unlock wipes the
+device and permanently trips Knox — read the warnings in that doc before starting.
+
 ### 4. Build & run
 
 ```

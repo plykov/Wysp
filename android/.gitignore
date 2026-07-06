@@ -1,0 +1,13 @@
+*.iml
+.gradle/
+build/
+.idea/
+local.properties
+.DS_Store
+/captures
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+magisk-module/app-release.apk
+native/third_party/

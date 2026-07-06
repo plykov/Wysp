@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Allowlists Krysp Local for the signature|privileged permissions it needs to capture
+  voice-communication-tagged audio streams (Zoom/WeChat/Telegram call audio). Being a priv-app
+  is necessary but not sufficient by itself on every OEM build - some manufacturers additionally
+  restrict this file's contents or require the app also be placed in a vendor-specific allowlist.
+  If the permission still isn't granted after installing this module (verify with
+  `adb shell dumpsys package com.wysp.krysp.android | grep -A1 CAPTURE`), check your device's
+  /system/etc/permissions/ and /vendor/etc/permissions/ for a similar OEM-specific file.
+-->
+<permissions>
+    <privapp-permissions package="com.wysp.krysp.android">
+        <permission name="android.permission.CAPTURE_AUDIO_OUTPUT" />
+        <permission name="android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT" />
+    </privapp-permissions>
+</permissions>

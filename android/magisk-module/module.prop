@@ -1,0 +1,6 @@
+id=krysp_call_recorder_privapp
+name=Krysp Local (priv-app allowlist)
+version=v0.1.0
+versionCode=1
+author=you
+description=Installs Krysp Local as a systemless priv-app and allowlists CAPTURE_AUDIO_OUTPUT / CAPTURE_VOICE_COMMUNICATION_OUTPUT so it can capture call audio (Zoom/WeChat/Telegram) directly instead of via mic+speakerphone. Personal rooted-device use only - see android/README.md.

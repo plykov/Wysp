@@ -1,0 +1,45 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!--
+      Signature|privileged permissions. Declaring them here is necessary but not sufficient:
+      they are only actually granted if this APK is installed as a system priv-app and
+      allowlisted in /system/etc/permissions/privapp-permissions-<pkg>.xml (see
+      /android/magisk-module). On a normal non-privileged install these permissions are
+      silently NOT granted, and PrivilegedDualTrackSource falls back / fails to construct -
+      the app detects this at runtime and uses MicSpeakerphoneSource instead.
+    -->
+    <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT"
+        tools:ignore="ProtectedPermissions" />
+
+    <application
+        android:name=".KryspApplication"
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.KryspLocal">
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".capture.RecordingForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+
+    </application>
+
+</manifest>

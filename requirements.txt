@@ -1,8 +1,12 @@
-# Windows-only: WASAPI microphone + loopback (system/call audio) capture.
-PyAudioWPatch==0.2.12.7; sys_platform == "win32"
+﻿# Windows-only: WASAPI microphone + loopback (system/call audio) capture.
+PyAudioWPatch==0.2.12.8; sys_platform == "win32"
 
 # Local, offline speech-to-text.
 faster-whisper==1.0.3
+# faster-whisper 1.0.3 imports requests but no longer gets it transitively:
+# huggingface-hub 1.x dropped its requests dependency (moved to httpx).
+requests>=2.31
 
 # Packaging (optional, only needed to build KryspLocal.exe).
-pyinstaller==6.10.0; sys_platform == "win32"
+pyinstaller==6.21.0; sys_platform == "win32"
+
